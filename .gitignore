@@ -1,4 +1,6 @@
 HELP.md
+target/**
+!**/target/*.jar
 .mvn
 mvnw*
 !**/src/main/**
