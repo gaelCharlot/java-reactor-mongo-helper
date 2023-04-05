@@ -16,6 +16,13 @@
     <name>MongoDB utility</name>
     <description>Library to manage your data in a MongoDB database</description>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/gaelCharlot/java-reactor-mongo-helper.git</url>
+        </repository>
+    </distributionManagement>
+
     <scm>
         <connection>scm:git:git://github.com/gaelCharlot/java-reactor-mongo-helper.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/gaelCharlot/java-reactor-mongo-helper.git</developerConnection>
@@ -53,10 +60,6 @@
 
         <!-- Cache management -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
         </dependency>
@@ -66,18 +69,6 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <version>1.9.9.1</version>
-        </dependency>
-
-        <!-- Swagger -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-webflux-core</artifactId>
-            <version>1.6.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-webflux-ui</artifactId>
-            <version>1.6.9</version>
         </dependency>
 
         <!-- Config-->

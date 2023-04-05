@@ -1,4 +1,4 @@
-package org.niogatori.mongohelper;
+package org.niogatori.mongohelper.bulkwriter;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
