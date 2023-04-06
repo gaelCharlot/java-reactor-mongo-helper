@@ -91,6 +91,8 @@ jobs:
       - name: extract version
         id: extract_version
         run: |
+          export GITHUB_USERNAME=${{ github.actor }}
+          export PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}
           export APP_VERSION=$(mvn --settings settings.xml  -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
           echo version=${APP_VERSION} >> $GITHUB_OUTPUT
           echo version_leading_zeros=$(printf "%02d.%02d.%02d" $(echo ${APP_VERSION} | tr -s . ' ')) >> $GITHUB_OUTPUT
