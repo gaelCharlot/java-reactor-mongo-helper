@@ -1,0 +1,185 @@
+name: Prepare and Create Release
+on:
+  workflow_dispatch:
+    inputs:
+      new-version-template:
+        description: 'New version template'
+        required: true
+      HOTFIX:
+        description: 'HOTFIX'
+        required: false
+        default: 'false'
+
+permissions:
+    id-token: write
+
+jobs:
+  set-env:
+    runs-on: [self-hosted, Linux, standard]
+    steps:
+      - name: Get GitHub slug
+        uses: rlespinasse/github-slug-action@v4.x
+
+      - uses: actions/checkout@v3.3.0
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Export CI env Parameter
+        run: echo "$(cat .github/CI_env | grep -v '#')" >> $GITHUB_ENV
+
+    outputs:
+      branch_release_origin: ${{env.branch_origin}}
+      branch_ref: ${{github.ref_name}}
+      namespace: ${{env.namespace}}
+      change_log_max_files : ${{env.change_log_max_files}}
+      repo_name: ${{env.GITHUB_REPOSITORY_NAME_PART}}
+
+  enabled-create-release:
+    if: ${{needs.set-env.outputs.branch_ref == 'main' || (needs.set-env.outputs.branch_ref == 'develop' && github.event.inputs.HOTFIX != 'true')}}
+    runs-on: [self-hosted, Linux, standard]
+    needs:
+      - set-env
+    steps:
+      - name: Display current branch
+        run: |
+          echo "Enable to create a release"
+          echo "From this branch ${{needs.set-env.outputs.branch_ref}} and hotfix is ${{github.event.inputs.HOTFIX}}"
+
+  prerare-changelog:
+    runs-on: [self-hosted, Linux, standard]
+    needs:
+      - set-env
+      - enabled-create-release
+    steps:
+      - uses: actions/checkout@v3.3.0
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          fetch-depth: 0
+
+      - name: Create Release Note from origin
+        run: |
+          mkdir -p changelogs
+          git log --pretty=format:"%H|%an|%s" | sed '/Release(bump to /q' > changelogs/changes.txt
+
+      - name: Upload changelog
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: changelog
+          path: changelogs/changes.txt
+          retention-days: 1
+
+  bump-version-on-new-release-branches:
+    runs-on: [self-hosted, Linux, standard]
+    needs:
+      - set-env
+      - prerare-changelog
+    steps:
+      - uses: actions/checkout@v3.3.0
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          ref: ${{needs.set-env.outputs.branch_release_origin}}
+
+      - name: Set Git mail
+        run: git config --global user.email "gcharlot08140@gmail.com"
+
+      - name: Set Git user
+        run: git config --global user.name "GitHub Release Manager"
+
+      - name: Update Pom.xml
+        run: mvn build-helper:parse-version versions:set -DnewVersion=${{github.event.inputs.new-version-template}} -DgenerateBackupPoms=false
+
+      - name: extract version
+        id: extract_version
+        run: |
+          export APP_VERSION=$(mvn --settings settings.xml  -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+          echo version=${APP_VERSION} >> $GITHUB_OUTPUT
+          echo version_leading_zeros=$(printf "%02d.%02d.%02d" $(echo ${APP_VERSION} | tr -s . ' ')) >> $GITHUB_OUTPUT
+
+      - name: echo extract version
+        run: echo ${{steps.extract_version.outputs.version}}
+
+      - name: Delete release branch if already exists
+        uses: dawidd6/action-delete-branch@v3.1.0
+        with:
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          branches: release-${{steps.extract_version.outputs.version}}
+          soft_fail: true
+
+      - uses: actions/download-artifact@v3.0.1
+        with:
+          name: changelog
+          path: changelogs
+
+      - name: Clean oldest changelogs
+        id: changelogFile_cleaner
+        continue-on-error: true
+        run: |
+          i=0
+          for file in $(ls changelogs -r)
+          do i=$((i+1)) 
+          [[ $i -gt ${{ needs.set-env.outputs.change_log_max_files }} ]] && echo "clean $file - file number : $i" && rm -f changelogs/$file
+          done
+
+      - name: Create release branch and add changelogs
+        id: changelogFile
+        run: |
+          export LOG_FILE=$(echo changelogs/${{steps.extract_version.outputs.version_leading_zeros}}.txt)
+          mv changelogs/changes.txt ${LOG_FILE}
+          echo LOG_FILE=${LOG_FILE} >> $GITHUB_OUTPUT
+          git checkout -b release-${{steps.extract_version.outputs.version}} origin/${{ needs.set-env.outputs.branch_release_origin }}
+          git add .
+
+      - name: Payload prepare for slack changelog part
+        continue-on-error: true
+        id: ReleaseNoteForSlack
+        run: |
+          echo RELEASE_NOTE=$(cat ${{steps.changelogFile.outputs.LOG_FILE}} | cut -d '|' -f3 | awk '{printf("%s\\n",$0)}') >> $GITHUB_OUTPUT
+
+      - name: Create release branch
+        if: ${{ github.event.inputs.HOTFIX != 'true' }}
+        run: |
+          git commit -m "Release(bump to ${{ steps.extract_version.outputs.version }})"
+          git push --force --set-upstream origin release-${{ steps.extract_version.outputs.version }}
+
+      - name: Create release HOTFIX branch
+        if: ${{ github.event.inputs.HOTFIX == 'true' }}
+        run: |
+          git add .
+          git commit -m "HOTFIX - Release (${{ steps.extract_version.outputs.version }})"
+          git push --force --set-upstream origin release-${{ steps.extract_version.outputs.version }}
+
+    outputs:
+      branch-release-name : release-${{ steps.extract_version.outputs.version }}
+      version-release : ${{ steps.extract_version.outputs.version }}
+
+  merge-if-origin-master:
+    if: needs.set-env.outputs.branch_release_origin == 'master' && github.event.inputs.HOTFIX != 'true'
+    needs :
+      - bump-version-on-new-release-branches
+    runs-on: [self-hosted, Linux, standard]
+    steps:
+      - name: Merge develop into release-x.x.x
+        uses: everlytic/branch-merge@1.1.5
+        with:
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          source_ref: develop
+          target_branch: ${{ needs.bump-version-on-new-release-branches.outputs.branch-release-name }}
+          commit_message_template: 'Release(${{ needs.bump-version-on-new-release-branches.outputs.version-release }})'
+
+  tagging-version:
+    needs :
+      - bump-version-on-new-release-branches
+    runs-on: [self-hosted, Linux, standard]
+    if: ${{ needs.set-env.outputs.branch_release_origin == 'develop' }}
+    steps:
+      - uses: actions/checkout@v3.3.0
+        with:
+          ref: ${{ needs.bump-version-on-new-release-branches.outputs.branch-release-name }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Tagging Version
+        run: |
+          echo "Tagging release ${{ needs.bump-version-on-new-release-branches.outputs.version-release }}"
+          git tag v${{ needs.bump-version-on-new-release-branches.outputs.version-release }}
+          git push origin tag v${{ needs.bump-version-on-new-release-branches.outputs.version-release }}
+
