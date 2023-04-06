@@ -1,0 +1,65 @@
+name: Approve Release Branches
+on:
+  workflow_dispatch:
+
+permissions:
+    id-token: write
+
+jobs:
+  set-env:
+    runs-on: [self-hosted, Linux, standard]
+    steps:
+      - name: Get GitHub slug
+        uses: rlespinasse/github-slug-action@v4.x
+
+      - uses: actions/checkout@v3.3.0
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Export CI env Parameter
+        run: echo "$(cat .github/CI_env | grep -v '#')" >> $GITHUB_ENV
+    outputs:
+      namespace: ${{env.namespace}}
+      turbine_deploy: ${{env.turbine_deploy}}
+      repo_name: ${{env.GITHUB_REPOSITORY_NAME_PART}}
+
+  prepare:
+    if: ${{ contains(github.ref,'release-') }}
+    needs:
+      - set-env
+    runs-on: [self-hosted, Linux, standard]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3.3.0
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Extract version
+        id: extract_version
+        run: |
+          export GITHUB_USERNAME=${{ github.actor }}
+          export PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          export APP_VERSION=$(mvn --settings settings.xml  -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+          echo version=${APP_VERSION} >> $GITHUB_OUTPUT
+
+      - name: echo extract version
+        run: echo ${{steps.extract_version.outputs.version}}
+
+    outputs:
+      branch-release-name : release-${{steps.extract_version.outputs.version}}
+      version-release : ${{steps.extract_version.outputs.version}}
+
+  tagging-version:
+    needs :
+      - prepare
+    runs-on: [self-hosted, Linux, standard]
+    steps:
+      - uses: actions/checkout@v3.3.0
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Tagging Version
+        run: |
+          echo "Tagging release ${{needs.prepare.outputs.version-release}}"
+          git tag v${{needs.prepare.outputs.version-release}}
+          git push origin tag v${{needs.prepare.outputs.version-release}}
