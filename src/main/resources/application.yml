@@ -1,0 +1,26 @@
+---
+spring:
+  application.name: MongoDB utility
+  config.activate.on-profile: "!default"
+  codec:
+    # handler large requests
+    max-in-memory-size: -1
+
+# Info
+info:
+  app:
+    name: ${spring.application.name}
+    description: Java Reactive MongoDB utility library
+    version: '@project.version@'
+    env: ${SPRING_PROFILES_ACTIVE}
+
+# Logger
+logging:
+  level:
+      springframework:
+        data:
+          mongodb:
+            core:
+              ReactiveMongoTemplate: error
+            repository:
+              query: info
