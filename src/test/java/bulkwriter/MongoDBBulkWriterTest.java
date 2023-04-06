@@ -9,7 +9,7 @@ import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.niogatori.mongohelper.MongoDBBulkWriter;
+import org.niogatori.mongohelper.bulkwriter.MongoDBBulkWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.ComponentScan;
@@ -25,8 +25,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.niogatori.mongohelper.LogicalOperator.AND;
-import static org.niogatori.mongohelper.LogicalOperator.OR;
+import static org.niogatori.mongohelper.bulkwriter.LogicalOperator.AND;
+import static org.niogatori.mongohelper.bulkwriter.LogicalOperator.OR;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 @Import(TestConfig.class)

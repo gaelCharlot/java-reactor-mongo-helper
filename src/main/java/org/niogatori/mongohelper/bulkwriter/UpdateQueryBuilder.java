@@ -1,4 +1,4 @@
-package org.niogatori.mongohelper;
+package org.niogatori.mongohelper.bulkwriter;
 
 import com.mongodb.client.model.Updates;
 import org.bson.BsonDocument;
