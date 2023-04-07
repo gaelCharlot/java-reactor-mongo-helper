@@ -1,4 +1,4 @@
-package bulkwriter;
+package org.niogatori.mongohelper.bulkwriter;
 
 import org.bson.Document;
 import org.junit.jupiter.api.Nested;
