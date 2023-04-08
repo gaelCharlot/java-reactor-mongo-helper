@@ -18,11 +18,7 @@ This library uses :
 - Spring Reactive library [io.projectreactor](https://projectreactor.io/docs)
 - Based on MongoDB shell to run command ([documentation](https://www.mongodb.com/docs/manual/reference/command/))
 - Sl4j to log activities
-<<<<<<< HEAD
-  - [Lombok](https://projectlombok.org/features/) to have a more readable / maintainable code
-=======
 - [Lombok](https://projectlombok.org/features/) to have a more readable / maintainable code
->>>>>>> develop
 
 Whole technologies are detailed in [technology documentation](docs/TECHNO.md).
 
@@ -84,9 +80,10 @@ If you want to use this library to manage your data in a MongoDB in a Java React
   <version>{Latest version}</version>
 </dependency>
 ```
-Replace `{Latest version}` with the latest version of the library.
 2. Run `mvn install`
 3. Import the utilities that this library offers to you and use the available functions (refer to the [documentation](file:///docs/javadoc/index.html) for details).
+
+_NB : Replace `{Latest version}` with the latest version of the library._
 
 ## Maintainers
 ***
