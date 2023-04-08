@@ -18,7 +18,11 @@ This library uses :
 - Spring Reactive library [io.projectreactor](https://projectreactor.io/docs)
 - Based on MongoDB shell to run command ([documentation](https://www.mongodb.com/docs/manual/reference/command/))
 - Sl4j to log activities
+<<<<<<< HEAD
   - [Lombok](https://projectlombok.org/features/) to have a more readable / maintainable code
+=======
+- [Lombok](https://projectlombok.org/features/) to have a more readable / maintainable code
+>>>>>>> develop
 
 Whole technologies are detailed in [technology documentation](docs/TECHNO.md).
 
