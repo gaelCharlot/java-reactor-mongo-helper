@@ -1,7 +1,6 @@
 # Java Reactor MongoDB helper
 
 ## Goal
-***
 Provide quick (but complex) features to manage your documents in MongoDB.
 
 This project was born when I had to make complex updates, commonly when I had to check if it's a creation or an update.
@@ -11,7 +10,6 @@ So I thought about these utilities to do that kind of stuff with the least numbe
 ***Enjoy !***
 
 ## Technologies
-***
 This library uses :
 - Java 11 language
 - Spring framework
@@ -23,7 +21,6 @@ This library uses :
 Whole technologies are detailed in [technology documentation](docs/TECHNO.md).
 
 ## Participating
-***
 To add the Java Reactor MongoDB Helper library to your GitHub project, you can follow these steps:
 
 1. Fork the repository from [github.com/java-reactor-mongo-helper](https://github.com/java-reactor-mongo-helper) by clicking on the "Fork" button in the upper right corner of the repository page. This will create a copy of the repository under your GitHub account.
@@ -70,7 +67,6 @@ Your application should have the following requirements:
 - Use [io.projectreactor](https://projectreactor.io/docs)
 
 ## Use it
-***
 If you want to use this library to manage your data in a MongoDB in a Java Reactive Application, you need to follow these steps:
 1. Add this dependency in your pom.xml :
 ```xml
@@ -80,14 +76,12 @@ If you want to use this library to manage your data in a MongoDB in a Java React
   <version>{Latest version}</version>
 </dependency>
 ```
-Replace `{Latest version}` with the latest version of the library.
 2. Run `mvn install`
 3. Import the utilities that this library offers to you and use the available functions (refer to the [documentation](file:///docs/javadoc/index.html) for details).
 
+_NB : Replace `{Latest version}` with the latest version of the library._
+
 ## Maintainers
-***
 This repository is currently maintained by [Gaël CHARLOT](https://github.com/gaelCharlot).
 
 If you have any questions, concerns, or issues related to this repository, please feel free to put your comment in the [available discussion](https://github.com/gaelCharlot/java-reactor-mongo-helper/discussions/1) or to contact me at [gcharlot08140@gmail.com]() or create an issue on the repository's GitHub page.
-
-Note : Please replace `{Latest version}` with the actual latest version of the library when using it in your project.
