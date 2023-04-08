@@ -82,7 +82,7 @@ If you want to use this library to manage your data in a MongoDB in a Java React
 ```
 Replace `{Latest version}` with the latest version of the library.
 2. Run `mvn install`
-3. Import the utilities that this library offers to you and use the available functions (refer to the [documentation](docs/javadoc) for details).
+3. Import the utilities that this library offers to you and use the available functions (refer to the [documentation](docs/javadoc/index.html) for details).
 
 ## Maintainers
 ***
