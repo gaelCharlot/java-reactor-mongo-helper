@@ -18,7 +18,7 @@ This library uses :
 - Spring Reactive library [io.projectreactor](https://projectreactor.io/docs)
 - Based on MongoDB shell to run command ([documentation](https://www.mongodb.com/docs/manual/reference/command/))
 - Sl4j to log activities
-- [Lombok](https://projectlombok.org/features/) to have a more readable / maintainable code
+  - [Lombok](https://projectlombok.org/features/) to have a more readable / maintainable code
 
 Whole technologies are detailed in [technology documentation](docs/TECHNO.md).
 
@@ -89,5 +89,3 @@ Replace `{Latest version}` with the latest version of the library.
 This repository is currently maintained by [Gaël CHARLOT](https://github.com/gaelCharlot).
 
 If you have any questions, concerns, or issues related to this repository, please feel free to put your comment in the [available discussion](https://github.com/gaelCharlot/java-reactor-mongo-helper/discussions/1) or to contact me at [gcharlot08140@gmail.com]() or create an issue on the repository's GitHub page.
-
-Note : Please replace `{Latest version}` with the actual latest version of the library when using it in your project.
