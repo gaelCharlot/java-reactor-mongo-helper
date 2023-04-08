@@ -1,0 +1,13 @@
+name: Create Patch
+on: workflow_dispatch
+
+jobs:
+  prepare-version:
+    runs-on: [self-hosted, Linux, standard]
+    steps:
+      - name: Dispatch workflow run create-release Patch
+        uses: benc-uk/workflow-dispatch@v1.2.2
+        with:
+          workflow: Prepare and Create Release
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          inputs: '{ "new-version-template": "\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}" }'
