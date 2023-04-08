@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"org.niogatori.mongohelper.bulkwriter"},{"l":"org.niogatori.mongohelper.config"}]
