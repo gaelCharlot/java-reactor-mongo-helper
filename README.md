@@ -77,7 +77,7 @@ If you want to use this library to manage your data in a MongoDB in a Java React
 </dependency>
 ```
 2. Run `mvn install`
-3. Import the utilities that this library offers to you and use the available functions (refer to the [documentation](file:///docs/javadoc/index.html) for details).
+3. Import the utilities that this library offers to you and use the available functions (refer to the [documentation](https://gaelcharlot.github.io/java-reactor-mongo-helper/javadoc/) for details).
 
 _NB : Replace `{Latest version}` with the latest version of the library._
 
