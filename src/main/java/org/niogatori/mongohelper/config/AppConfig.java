@@ -3,11 +3,14 @@ package org.niogatori.mongohelper.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
@@ -20,6 +23,7 @@ import java.util.List;
 
 @Configuration
 public class AppConfig {
+
     @Bean
     Clock clock() {
         return Clock.systemDefaultZone();

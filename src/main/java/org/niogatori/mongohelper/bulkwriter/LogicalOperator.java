@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum LogicalOperator {
+enum LogicalOperator {
     AND("and"),
     OR("or");
 
