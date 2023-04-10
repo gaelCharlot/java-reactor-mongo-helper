@@ -31,7 +31,7 @@ class UpdateCommandTest {
             List<Document> updates = List.of(update1);
             UpdateCommand updateCommand = new UpdateCommand("MyCollection", updates, true, null, false, null, null);
 
-            assertThat(updateCommand.toBson()).satisfies(command -> {
+            assertThat(updateCommand.asBson()).satisfies(command -> {
                 assertThat(command)
                         .hasFieldOrPropertyWithValue("update", "MyCollection")
                         .hasFieldOrPropertyWithValue("updates", List.of(update1))

@@ -29,7 +29,7 @@ public class UpdateCommand {
     private String comment;
     private Document let;
 
-    public Document toBson() {
+    public Document asBson() {
         Document updateCommand = new Document("update", update)
                 .append("updates", updates)
                 .append("ordered", ordered)

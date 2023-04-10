@@ -71,7 +71,7 @@ public class MongoDBBulkWriter<T> {
                 .build();
         return template.getMongoDatabase()
                 .map(mongoDatabase -> mongoDatabase.runCommand(updateCommand
-                        .withUpdates(queries, fieldsToSet, fieldsToUnset, fieldsToSetOnInsert, true, true).toBson()))
+                        .withUpdates(queries, fieldsToSet, fieldsToUnset, fieldsToSetOnInsert, true, true).asBson()))
                 .flatMapMany(Mono::from)
                 .doOnNext(MongoDBBulkWriter::logErrors)
                 .map(MongoDBBulkWriter::getNbTotalChanges)
@@ -102,7 +102,7 @@ public class MongoDBBulkWriter<T> {
 
         return Flux.just(objectsToSaveById)
                 .flatMapSequential(list -> template.getMongoDatabase()
-                        .map(mongoDatabase -> mongoDatabase.runCommand(updateCommand.toBson()))
+                        .map(mongoDatabase -> mongoDatabase.runCommand(updateCommand.asBson()))
                         .flatMapMany(Mono::from), 1)
                 .doOnNext(MongoDBBulkWriter::logErrors)
                 .map(MongoDBBulkWriter::getNbTotalChanges)
