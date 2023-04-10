@@ -12,7 +12,7 @@
 
     <groupId>gaelCharlot</groupId>
     <artifactId>java-reactor-mongo-helper</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>MongoDB utility</name>
     <description>Library to manage your data in a MongoDB database</description>
 
