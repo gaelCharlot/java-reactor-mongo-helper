@@ -20,6 +20,7 @@ import java.util.List;
 
 @Configuration
 public class AppConfig {
+
     @Bean
     Clock clock() {
         return Clock.systemDefaultZone();

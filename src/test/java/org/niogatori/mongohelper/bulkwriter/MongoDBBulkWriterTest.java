@@ -82,7 +82,7 @@ class MongoDBBulkWriterTest {
 
     @BeforeEach
     void setup() {
-        this.mongoDBBulkWriter = new MongoDBBulkWriter<MyObject>(reactiveMongoTemplate);
+        this.mongoDBBulkWriter = new MongoDBBulkWriter<>(reactiveMongoTemplate);
         reactiveMongoTemplate.dropCollection(MyObject.class).block();
     }
 
@@ -364,7 +364,7 @@ class MongoDBBulkWriterTest {
         void shouldUpdateWithNullNameAndReturnNumberOfUpdates() {
             MyId myId = new MyId("ref", 1);
             MyObject myObject = new MyObject(myId, "toto", "un objet", 7);
-            reactiveMongoTemplate.save(myObject, "MyObject").block();
+            reactiveMongoTemplate.save(myObject).block();
 
             MyPartialObject myPartialObject = new MyPartialObject(null, 6);
             MyObject myUpdatedObject = new MyObject(myId, null, "un objet", 6);
@@ -419,7 +419,7 @@ class MongoDBBulkWriterTest {
         void shouldUpdateAndReturnNumberOfUpdates() {
             MyId myId = new MyId("ref", 1);
             MyObject myObject = new MyObject(myId, "toto", "un objet", 5);
-            reactiveMongoTemplate.save(myObject, "MyObject").block();
+            reactiveMongoTemplate.save(myObject).block();
 
             MyPartialObject myPartialObject = new MyPartialObject("tata", 4);
             MyObject myUpdatedObject = new MyObject(myId, "tata", "un objet", 4);
@@ -443,7 +443,7 @@ class MongoDBBulkWriterTest {
         void shouldUpdateWithNullNameAndReturnNumberOfUpdates() {
             MyId myId = new MyId("ref", 1);
             MyObject myObject = new MyObject(myId, "toto", "un objet", 7);
-            reactiveMongoTemplate.save(myObject, "MyObject").block();
+            reactiveMongoTemplate.save(myObject).block();
 
             MyPartialObject myPartialObject = new MyPartialObject(null, 6);
             MyObject myUpdatedObject = new MyObject(myId, null, "un objet", 6);
@@ -470,7 +470,7 @@ class MongoDBBulkWriterTest {
         void shouldUnsetFields() {
             MyId myId = new MyId("ref", 1);
             MyObject myObject = new MyObject(myId, "toto", "un objet", 5);
-            reactiveMongoTemplate.save(myObject, "MyObject").block();
+            reactiveMongoTemplate.save(myObject).block();
 
             MyObject myUpdatedObject = new MyObject(myId, null, "un objet", 5);
 
@@ -489,12 +489,10 @@ class MongoDBBulkWriterTest {
         }
 
         @Test
-        void shouldUnsetAllFields() {
+        void shouldUnsetNothing() {
             MyId myId = new MyId("ref", 1);
             MyObject myObject = new MyObject(myId, "toto", "un objet", 5);
-            reactiveMongoTemplate.save(myObject, "MyObject").block();
-
-            MyObject myUpdatedObject = new MyObject(myId, null, null, null);
+            reactiveMongoTemplate.save(myObject).block();
 
             Document mappedMyId = myId.mapToBSON();
 
@@ -502,11 +500,11 @@ class MongoDBBulkWriterTest {
 
             StepVerifier
                     .create(mongoDBBulkWriter.upsert(MyObject.class, map, null))
-                    .expectNext(1)
+                    .expectNext(0)
                     .verifyComplete();
 
             StepVerifier.create(reactiveMongoTemplate.findById(myId, MyObject.class))
-                    .expectNext(myUpdatedObject)
+                    .expectNext(myObject)
                     .verifyComplete();
         }
     }
@@ -515,7 +513,6 @@ class MongoDBBulkWriterTest {
     class SetOnInsertFieldTest {
         @Test
         void shouldSetOnInsertDescriptionFields() {
-            reactiveMongoTemplate.dropCollection("MyObject");
             MyId myId = new MyId("ref", 1);
 
             MyPartialObject myPartialObject = new MyPartialObject("tata", 3);
@@ -538,10 +535,9 @@ class MongoDBBulkWriterTest {
 
         @Test
         void shouldNotSetOnInsertDescriptionWhenUpdate() {
-            reactiveMongoTemplate.dropCollection("MyObject");
             MyId myId = new MyId("ref", 1);
 
-            reactiveMongoTemplate.save(new MyObject(myId, null, null, null), "MyObject").block();
+            reactiveMongoTemplate.save(new MyObject(myId, null, null, null)).block();
 
             MyPartialObject myPartialObject = new MyPartialObject("tata", 3);
             MyObject myUpdatedObject = new MyObject(myId, "tata", null, 3);
