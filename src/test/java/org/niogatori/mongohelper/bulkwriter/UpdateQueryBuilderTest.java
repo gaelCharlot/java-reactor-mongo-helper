@@ -3,7 +3,6 @@ package org.niogatori.mongohelper.bulkwriter;
 import org.bson.Document;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.niogatori.mongohelper.bulkwriter.UpdateQueryBuilder;
 
 import java.util.List;
 import java.util.Map;

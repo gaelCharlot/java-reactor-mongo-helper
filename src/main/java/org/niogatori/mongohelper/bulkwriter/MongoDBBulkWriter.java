@@ -3,8 +3,8 @@ package org.niogatori.mongohelper.bulkwriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.niogatori.mongohelper.models.UpdateCommand;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -15,7 +15,6 @@ import reactor.util.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -65,9 +64,14 @@ public class MongoDBBulkWriter<T> {
 
     public Mono<Integer> upsertMany(Class<T> clazz, Document queries, Document fieldsToSet,
             List<String> fieldsToUnset, Document fieldsToSetOnInsert) {
+        UpdateCommand updateCommand = UpdateCommand.builder()
+                .update(template.getCollectionName(clazz))
+                .ordered(true)
+                .bypassDocumentValidation(false)
+                .build();
         return template.getMongoDatabase()
-                .map(mongoDatabase -> mongoDatabase.runCommand(
-                        getUpdateCommand(clazz, queries, fieldsToSet, fieldsToUnset, fieldsToSetOnInsert)))
+                .map(mongoDatabase -> mongoDatabase.runCommand(updateCommand
+                        .withUpdates(queries, fieldsToSet, fieldsToUnset, fieldsToSetOnInsert, true, true).asBson()))
                 .flatMapMany(Mono::from)
                 .doOnNext(MongoDBBulkWriter::logErrors)
                 .map(MongoDBBulkWriter::getNbTotalChanges)
@@ -89,12 +93,16 @@ public class MongoDBBulkWriter<T> {
             return Mono.just(0);
         }
 
-        Document command = getUpdateCommand(clazz, objectsToSaveById, fieldsToUnset,
-                toDocument(fieldsToSetOnInsert));
+        UpdateCommand updateCommand = UpdateCommand.builder()
+                .update(template.getCollectionName(clazz))
+                .ordered(true)
+                .bypassDocumentValidation(false)
+                .build()
+                .withUpdates(objectsToSaveById, fieldsToUnset, toDocument(fieldsToSetOnInsert), true, true);
 
         return Flux.just(objectsToSaveById)
                 .flatMapSequential(list -> template.getMongoDatabase()
-                        .map(mongoDatabase -> mongoDatabase.runCommand(command))
+                        .map(mongoDatabase -> mongoDatabase.runCommand(updateCommand.asBson()))
                         .flatMapMany(Mono::from), 1)
                 .doOnNext(MongoDBBulkWriter::logErrors)
                 .map(MongoDBBulkWriter::getNbTotalChanges)
@@ -116,37 +124,5 @@ public class MongoDBBulkWriter<T> {
             writeErrors.forEach(err -> log.error(err.getString("errmsg")));
             log.warn("{} error(s) has been result post bulkWrite process", writeErrors.size());
         }
-    }
-
-    Document getUpdateCommand(Class<T> clazz, @NonNull Map<Document, Optional<Document>> objectsToSaveById,
-            @Nullable List<String> fieldsToUnset, Document fieldsToSet) {
-        List<Document> queriesUpdate = objectsToSaveById.entrySet().stream()
-                .map(entry -> new UpdateQueryBuilder()
-                        .query(entry.getKey())
-                        .addSetStage(entry.getValue().orElse(null))
-                        .addUnsetStage(fieldsToUnset)
-                        .addSetOnInsertStage(fieldsToSet)
-                        .isUpsertEnabled(true)
-                        .build())
-                .collect(Collectors.toList());
-        return new Document("update", template.getCollectionName(clazz))
-                .append("updates", queriesUpdate)
-                .append("ordered", true);
-    }
-
-    Document getUpdateCommand(Class<T> clazz, Document fieldsToQuery, Document fieldsToSet,
-            @Nullable List<String> fieldsToUnset, Document fieldsToSetOnInsert) {
-        Document query = new UpdateQueryBuilder()
-                .query(fieldsToQuery)
-                .addSetStage(fieldsToSet)
-                .addUnsetStage(fieldsToUnset)
-                .addSetOnInsertStage(fieldsToSetOnInsert)
-                .isUpsertEnabled(true)
-                .isMultiEnabled(true)
-                .build();
-
-        return new Document("update", template.getCollectionName(clazz))
-                .append("updates", List.of(query))
-                .append("ordered", true);
     }
 }
